@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Página no encontrada · Ricardo Villalobos</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+  <style>
+    :root { color-scheme: light dark; --bg: #f6f7fb; --text: #0f172a; --muted: #64748b; --accent: #0e7490; }
+    @media (prefers-color-scheme: dark) { :root { --bg: #0a0f1e; --text: #e8edf7; --muted: #8f9cb8; --accent: #38bdf8; } }
+    body { margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 16px; background: var(--bg); color: var(--text);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; text-align: center; }
+    code { font-family: ui-monospace, Consolas, monospace; color: var(--muted); }
+    a { color: var(--accent); font-weight: 600; }
+  </style>
+</head>
+<body>
+  <main>
+    <p><code>404 · recurso no encontrado</code></p>
+    <h1>Esta ruta no existe</h1>
+    <p><a href="/">Volver al inicio</a></p>
+  </main>
+  <script>
+    // En un sitio de proyecto (usuario.github.io/repo/) el inicio está bajo el primer segmento de la ruta.
+    // Si ese inicio existe, el enlace apunta ahí; si no, queda la raíz del dominio.
+    (function () {
+      var link = document.querySelector("main a");
+      var icon = document.querySelector('link[rel="icon"]');
+      function usar(base) { link.href = base; if (icon) icon.href = base + "assets/img/favicon.svg"; }
+      var seg = location.pathname.split("/").filter(Boolean)[0];
+      if (!seg || !window.fetch) return;
+      fetch("/" + seg + "/index.html", { method: "HEAD" })
+        .then(function (r) { if (r.ok) usar("/" + seg + "/"); })
+        .catch(function () {});
+    })();
+  </script>
+</body>
+</html>

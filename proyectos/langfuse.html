@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="es" class="no-js">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Observabilidad de LLM autoalojada · Ricardo Villalobos</title>
+  <meta name="description" content="Langfuse 4 autoalojado y optimizado en Amazon EKS: ClickHouse replicado con Keeper, Aurora PostgreSQL Serverless v2, Valkey sin desalojo, S3 por capas y un vigilante para el modo de escritura dual.">
+  <meta name="author" content="Ricardo Andrés Villalobos Marulanda">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Observabilidad de LLM autoalojada en Amazon EKS">
+  <meta property="og:description" content="Langfuse, ClickHouse, Aurora, Valkey y S3 con Terraform, Terragrunt y Helm.">
+  <meta property="og:url" content="https://ricardovillalobos0990.github.io/proyectos/langfuse.html">
+  <meta property="og:image" content="https://ricardovillalobos0990.github.io/assets/img/og.png">
+  <link rel="canonical" href="https://ricardovillalobos0990.github.io/proyectos/langfuse.html">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Ricardo Villalobos, Platform Engineer: plataformas cloud de punta a punta">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f2f3f3">
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0f1b2a">
+  <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/styles.css">
+  <script>
+    try { var t = localStorage.getItem("portafolio-tema"); if (t === "light" || t === "dark") document.documentElement.dataset.theme = t; } catch (e) {}
+  </script>
+</head>
+<body data-base="../">
+  <a class="skip-link" href="#contenido">Saltar al contenido</a>
+
+  <header class="site-nav">
+    <div class="container">
+      <a class="brand" href="../" aria-label="Inicio">
+        <img class="brand-mark" src="../assets/img/ricardo.jpg" alt="" width="36" height="36">
+        <span>Ricardo Villalobos</span>
+      </a>
+      <div style="display:flex;align-items:center;gap:8px">
+        <nav class="nav-links" aria-label="Principal">
+          <a href="../#proyectos">Proyectos</a>
+          <a href="plataforma-aws.html">Plataforma</a>
+          <a href="langfuse.html" aria-current="page">LLMOps</a>
+          <a href="finops.html">FinOps</a>
+        </nav>
+        <button class="icon-btn" type="button" data-theme-toggle aria-label="Cambiar tema">
+          <svg class="theme-icon-light" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+          <svg class="theme-icon-dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+        </button>
+        <button class="icon-btn nav-toggle" type="button" data-nav-toggle aria-expanded="false" aria-label="Abrir menú">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main id="contenido">
+    <section class="project-hero" data-domain="ia">
+      <div class="container">
+        <p class="breadcrumb"><a href="../">Inicio</a> / <a href="../#proyectos">Proyectos</a> / LLMOps</p>
+        <span class="eyebrow" style="color:var(--c)">Proyecto 02 · LLMOps</span>
+        <h1>Observabilidad de LLM autoalojada en Amazon EKS</h1>
+        <p class="lead">Llevé a producción desde cero una plataforma de trazas, evaluaciones y costos de modelos de lenguaje con Langfuse 4 para varios clientes con carga continua. Reemplaza un SaaS que cobraba por cada dato ingerido por infraestructura propia con impulsores de costo conocidos, y deja la custodia de prompts y respuestas en la cuenta propia.</p>
+        <div class="stats" style="margin-top:22px">
+          <div class="stat"><div class="stat-value">~⅔</div><div class="stat-label">menos CPU de ClickHouse por evento</div></div>
+          <div class="stat"><div class="stat-value">2 zonas</div><div class="stat-label">en producción, con quórum y capa fría</div></div>
+          <div class="stat"><div class="stat-value">3 stacks</div><div class="stat-label">de Terraform y Terragrunt con guardas en el plan</div></div>
+        </div>
+        <ul class="chips" style="margin-top:18px">
+          <li class="chip" data-domain="ia">Langfuse 4</li>
+          <li class="chip" data-domain="computo">Amazon EKS</li>
+          <li class="chip" data-domain="datos">ClickHouse + Keeper</li>
+          <li class="chip" data-domain="datos">Aurora PostgreSQL Serverless v2</li>
+          <li class="chip" data-domain="datos">ElastiCache Valkey</li>
+          <li class="chip" data-domain="datos">Amazon S3</li>
+          <li class="chip" data-domain="seguridad">AWS KMS · IRSA</li>
+          <li class="chip" data-domain="entrega">Terraform · Terragrunt · Helm</li>
+          <li class="chip" data-domain="observabilidad">Prometheus · Grafana</li>
+        </ul>
+        <div class="project-meta">
+          <span><strong>Rol:</strong> arquitectura, IaC y operación</span>
+          <span><strong>Planos:</strong> aplicación · datos analíticos · metadatos y colas</span>
+          <span><strong>Topología:</strong> dos zonas de disponibilidad</span>
+        </div>
+      </div>
+    </section>
+
+    <div class="container layout-doc">
+      <aside class="toc" aria-label="Contenido de la página">
+        <p class="toc-title">En esta página</p>
+        <ol>
+          <li><a href="#por-que">Por qué autoalojar</a></li>
+          <li><a href="#arquitectura">Arquitectura</a></li>
+          <li><a href="#computo">Cómputo y zonas</a></li>
+          <li><a href="#datos">Datos y retención</a></li>
+          <li><a href="#ingesta">Ingesta dual</a></li>
+          <li><a href="#operacion">Operación</a></li>
+          <li><a href="#seguridad">Seguridad</a></li>
+          <li><a href="#optimizacion">Optimización</a></li>
+          <li><a href="#decisiones">Decisiones</a></li>
+          <li><a href="#estado">Resultado</a></li>
+        </ol>
+      </aside>
+
+      <div class="doc">
+        <!-- 01 -->
+        <section class="doc-section" id="por-que" data-domain="ia">
+          <h2><span class="num">01</span> Por qué autoalojar</h2>
+          <p>El SaaS de observabilidad cobraba por unidad ingerida: cada traza, observación o score. Un turno de un agente con herramientas genera varias observaciones, así que <strong>medir más costaba más</strong>. Ese modelo castiga justo lo que una plataforma de observabilidad debe fomentar. Además, las trazas contienen información sensible de los clientes, así que su custodia debía quedar en infraestructura propia.</p>
+          <div class="card chart-card">
+            <h3>Dos modelos de costo</h3>
+            <p class="chart-sub">Ilustrativo: sin cifras reales, solo la forma de cada curva</p>
+            <div class="chart short" id="chart-modelo" role="img" aria-label="Gráfico ilustrativo: el costo del SaaS crece en línea recta con el volumen instrumentado, el autoalojado crece por escalones de infraestructura"></div>
+          </div>
+          <div class="callout"><p><strong>Lección de costeo:</strong> un estimado hecho por conversación falla, porque la unidad facturable real es la observación. Los costos se modelan sobre la unidad que de verdad se cobra, y se miden después en la factura.</p></div>
+        </section>
+
+        <!-- 02 -->
+        <section class="doc-section" id="arquitectura" data-domain="ia">
+          <h2><span class="num">02</span> Arquitectura</h2>
+          <p>Langfuse se instala con su chart oficial de Helm dentro de un clúster de Amazon EKS que ya existía, junto al orquestador de agentes que emite las trazas. Terraform y Terragrunt gestionan el resto en tres stacks con orden de dependencias; los node groups se declaran en YAML de eksctl, versionado junto a cada módulo. Ningún componente de aplicación ni de datos tiene IP pública: la única entrada es un ALB con certificado propio y la salida va por NAT.</p>
+          <figure class="diagram" data-drawio="../diagramas/langfuse-arquitectura.drawio">
+            <div class="diagram-frame"><div class="diagram-loading">Cargando diagrama… <noscript>El visor necesita JavaScript: <a href="../diagramas/langfuse-arquitectura.drawio" download>descarga el .drawio</a>.</noscript></div></div>
+            <figcaption>
+              <span>Arquitectura en producción.</span>
+              <span class="diagram-actions"><button type="button" data-zoom hidden>Ampliar diagrama</button><a data-open-drawio href="../diagramas/langfuse-arquitectura.drawio" target="_blank" rel="noopener">Abrir en diagrams.net ↗</a><a href="../diagramas/langfuse-arquitectura.drawio" download>Descargar .drawio</a></span>
+            </figcaption>
+          </figure>
+          <div class="grid grid-3">
+            <div class="card domain-card" data-domain="computo"><h3>Plano de aplicación</h3><p>Langfuse web y worker en node groups dedicados con taint, una réplica de cada uno por nodo. La API de ingesta escribe el evento en S3 y encola el trabajo.</p></div>
+            <div class="card domain-card" data-domain="datos"><h3>Datos analíticos</h3><p>ClickHouse con el operador oficial: dos réplicas completas en un único shard, tres Keeper para el quórum y almacenamiento por capas en EBS gp3 y S3.</p></div>
+            <div class="card domain-card" data-domain="datos"><h3>Metadatos y colas</h3><p>Aurora PostgreSQL Serverless v2 para usuarios, proyectos, claves y prompts. Valkey hace de caché y de cola de ingesta, sin desalojo.</p></div>
+          </div>
+        </section>
+
+        <!-- 03 -->
+        <section class="doc-section" id="computo" data-domain="computo">
+          <h2><span class="num">03</span> Cómputo y zonas de disponibilidad</h2>
+          <p>El dimensionamiento salió de una ventana de siete días en Prometheus: el recurso que se agota primero es la memoria.</p>
+          <div class="grid grid-2">
+            <div class="stack" role="group" aria-label="Distribución por zona">
+              <div class="stack-layer" data-domain="computo"><h3>Zona A</h3><p>Dos nodos de aplicación (web, worker y Keeper en cada uno) y una réplica de ClickHouse.</p></div>
+              <div class="stack-layer" data-domain="computo"><h3>Zona B</h3><p>Un nodo de aplicación y la otra réplica de ClickHouse.</p></div>
+              <div class="stack-layer" data-domain="datos"><h3>Administrados</h3><p>Aurora con escritor y lector, y Valkey con primario y réplica, cada par en zonas distintas.</p></div>
+              <div class="stack-layer" data-domain="seguridad"><h3>Tolerancia a fallos</h3><p>La topología tolera la caída de cualquier nodo sin perder escrituras.</p></div>
+            </div>
+            <ul class="points">
+              <li><strong>Anti-afinidad obligatoria por host.</strong> Son tres nodos porque lo exige el quórum de Keeper, no la capacidad.</li>
+              <li><strong>Réplicas fijas, sin HPA.</strong> Un HPA sobre un node group de tamaño fijo no crea capacidad: crea pods en Pending.</li>
+              <li><strong>maxSurge 0 y maxUnavailable 1.</strong> Con anti-afinidad estricta y tantos nodos como réplicas, la estrategia por defecto atasca el rollout.</li>
+              <li><strong>Instancia por mérito.</strong> En un nodo pequeño los DaemonSets fijos se llevan casi la mitad de la CPU asignable; en el siguiente tamaño, cerca de un cuarto.</li>
+              <li><strong>Un node group de aplicación por zona.</strong> Fijan qué zona se queda con dos nodos en lugar de dejarlo al Auto Scaling group. ClickHouse va en un tercer node group que abarca las dos zonas.</li>
+            </ul>
+          </div>
+        </section>
+
+        <!-- 04 -->
+        <section class="doc-section" id="datos" data-domain="datos">
+          <h2><span class="num">04</span> Datos y retención por capas</h2>
+          <p>La retención por proyecto del producto es una función de pago, así que la retención se aplica en cada almacén donde vive el dato.</p>
+          <div class="stack">
+            <div class="stack-layer" data-domain="datos"><h3>Caliente · EBS gp3</h3><p>Unos 30 días en el volumen local de ClickHouse, con StorageClass propia, llave KMS propia, <code>Retain</code> y expansión habilitada.</p></div>
+            <div class="stack-layer" data-domain="borde"><h3>Fría · disco S3</h3><p>Desde el día 31, movida por <code>TTL … TO VOLUME</code>. Sin este escalón harían falta unas cuatro veces más de disco por réplica.</p></div>
+            <div class="stack-layer" data-domain="finops"><h3>Eventos crudos · S3</h3><p>Retención acotada por ciclo de vida. Solo sirven para ingerir y repescar, así que su retención es más corta que la consultable.</p></div>
+            <div class="stack-layer" data-domain="observabilidad"><h3>Tablas de sistema</h3><p>Días para los logs del servidor y dos semanas para consultas y métricas internas.</p></div>
+          </div>
+          <ul class="points" style="margin-top:18px">
+            <li><strong>Valkey también es la cola de ingesta.</strong> El valor por defecto <code>volatile-lru</code> descartaría trabajos en silencio. Parameter group propio con <code>noeviction</code>, TLS, AUTH y failover entre zonas.</li>
+            <li><strong>Aurora Serverless v2 porque la carga va en picos.</strong> Piso bajo y techo alto: las ráfagas de segundos tocan el techo, así que no conviene bajarlo para ahorrar.</li>
+            <li><strong>Dos buckets con ciclos opuestos.</strong> En el de eventos, caducar es la retención. En el de ClickHouse, la capa fría son partes vivas de las tablas y no pueden caducar desde S3.</li>
+            <li><strong>ClickHouse escala en vertical.</strong> Las réplicas dan alta disponibilidad y permiten cambiar de node group sin parar la ingesta, pero no capacidad.</li>
+          </ul>
+        </section>
+
+        <!-- 05 -->
+        <section class="doc-section" id="ingesta" data-domain="ia">
+          <h2><span class="num">05</span> Ingesta y compatibilidad entre versiones</h2>
+          <p>Langfuse 4 rechaza en su modo por defecto las trazas de los SDK de la generación anterior, y lo hace con un HTTP 207 con la lista de éxitos vacía, algo que cualquier cliente lee como éxito. El servidor corre en <strong>modo de escritura dual</strong>: escribe en las tablas heredadas, que la interfaz sigue leyendo, y propaga al modelo nuevo por una tabla puente.</p>
+          <div class="flow" role="group" aria-label="Recorrido de un evento">
+            <div class="flow-step"><span class="k">1 · Emisor</span><strong>SDK anterior</strong><span>El orquestador de agentes envía lotes a la API de ingesta por el Service interno.</span></div>
+            <div class="flow-step"><span class="k">2 · Web</span><strong>S3 + cola</strong><span>Guarda el evento en S3 y encola el trabajo en Valkey.</span></div>
+            <div class="flow-step"><span class="k">3 · Worker</span><strong>Fusión</strong><span>Lista y lee los fragmentos de la entidad y los escribe en ClickHouse.</span></div>
+            <div class="flow-step"><span class="k">4 · Puente</span><strong>Staging 48 h</strong><span>Un cron propaga una partición por minuto hacia el modelo nuevo.</span></div>
+          </div>
+          <div class="callout warn"><p><strong>El modo de fallo silencioso:</strong> si la propagación se atrasa más de 48 horas, el TTL del staging borra particiones enteras sin error. El health check del producto no lo ve, porque solo mide que el cron siga vivo.</p></div>
+          <ul class="points">
+            <li><strong>Vigilante propio cada 15 minutos.</strong> Cuenta las observaciones cerradas sin propagar, donde lo sano es cero, y calcula el margen que queda hasta el TTL. Alerta por atraso, por atasco y por margen agotado.</li>
+            <li><strong>Diseñado para no competir con la ingesta.</strong> Un <code>RIGHT ANTI JOIN</code> con los candidatos en el lado hash hace que su memoria crezca con el atraso y no con el tráfico total.</li>
+            <li><strong>Sin falsos positivos.</strong> Excluye los artefactos del modelo nuevo y los reenvíos de observaciones antiguas.</li>
+            <li><strong>OTLP evaluado y descartado en el emisor.</strong> El registro del tracer es global y lo decide la primera llamada: con varias réplicas, el destino no es determinista.</li>
+          </ul>
+        </section>
+
+        <!-- 06 -->
+        <section class="doc-section" id="operacion" data-domain="observabilidad">
+          <h2><span class="num">06</span> Observabilidad de la propia plataforma</h2>
+          <p>Que el health check responda 200 no prueba que las trazas se guarden: la ingesta es asíncrona. Por eso se mide el recorrido completo, de enviar una traza a poder leerla.</p>
+          <div class="grid grid-2">
+            <div class="card"><h3>Sonda de extremo a extremo</h3><p>Cada 5 minutos, por el camino interno y por el público, contra un proyecto propio de monitoreo. Abre el cuerpo del 207 y alerta si la ingesta está rota, si la traza no se puede consultar, si el retraso supera un minuto o si la sonda se detiene.</p></div>
+            <div class="card"><h3>Métricas del modelo por proyecto</h3><p>Un exportador lee ClickHouse con una sola credencial y agrupa por proyecto, así los proyectos nuevos aparecen solos en los tableros de latencia, costo y errores.</p></div>
+            <div class="card"><h3>Reglas de infraestructura</h3><p>Memoria del pod frente a su límite, volúmenes que se llenan, quórum de Keeper degradado, ClickHouse sin redundancia, pods en Pending y reinicios.</p></div>
+            <div class="card"><h3>Señales que no mienten</h3><p>Toda métrica que llega por Pushgateway publica su marca de tiempo, para distinguir un recolector muerto de uno sano. En Valkey se vigila la CPU del motor, porque es monohilo.</p></div>
+          </div>
+          <ul class="chips" style="margin-top:16px">
+            <li class="chip" data-domain="observabilidad">kube-prometheus-stack</li>
+            <li class="chip" data-domain="observabilidad">Pushgateway</li>
+            <li class="chip" data-domain="observabilidad">Alertmanager</li>
+            <li class="chip" data-domain="observabilidad">Grafana</li>
+            <li class="chip" data-domain="observabilidad">CloudWatch Alarms</li>
+            <li class="chip" data-domain="ia">MCP nativo de Langfuse</li>
+          </ul>
+        </section>
+
+        <!-- 07 -->
+        <section class="doc-section" id="seguridad" data-domain="seguridad">
+          <h2><span class="num">07</span> Seguridad, identidad y secretos</h2>
+          <ul class="points">
+            <li><strong>Llave propia por plataforma.</strong> Una CMK de KMS multirregión desde el inicio, porque no se puede convertir después, con rotación y protección contra borrado. Cifra Aurora, S3, EBS y Secrets Manager.</li>
+            <li><strong>Sin llaves estáticas.</strong> Web y worker acceden a S3 con IRSA. Los providers de Kubernetes y Helm se autentican con <code>aws eks get-token</code>, sin kubeconfig en disco.</li>
+            <li><strong>Secretos fuera del estado legible.</strong> Se generan en Terraform, viven en Secrets Manager y los outputs solo exponen ARN. Dos secretos según su perfil de rotación, porque la llave de cifrado no debe rotar nunca.</li>
+            <li><strong>Valores inseguros cerrados antes de publicar.</strong> Registro abierto deshabilitado, telemetría del producto apagada y CSP con HTTPS obligatorio antes de que el nombre resuelva.</li>
+            <li><strong>Alta de usuarios sin secretos compartidos.</strong> Un Job crea la cuenta y asigna sus membresías en la misma transacción; nadie conoce ni transmite una contraseña inicial.</li>
+            <li><strong>Red cerrada por diseño.</strong> Un security group por puerto y por origen, y una guarda en el plan de Terraform que rechaza ubicar la base o la caché en una subred con ruta a un internet gateway.</li>
+          </ul>
+        </section>
+
+        <!-- 08 -->
+        <section class="doc-section" id="optimizacion" data-domain="finops">
+          <h2><span class="num">08</span> Optimización medida</h2>
+          <p>Toda optimización se mide antes y después con tráfico real y se descarta si pone en riesgo la integridad del dato. Las palancas se ordenan por su impulsor real.</p>
+          <div class="grid grid-2 align-start">
+            <div class="card chart-card">
+              <h3>CPU de ClickHouse por evento</h3>
+              <p class="chart-sub">CPU por cada mil eventos (índice, antes = 100) y pico de la réplica más cargada, al omitir la lectura previa en el proyecto de mayor volumen</p>
+              <div class="chart short" id="chart-cpu" role="img" aria-label="La CPU por cada mil eventos baja de 100 a cerca de 32 y el pico de la réplica más cargada de 78 a 18 por ciento"></div>
+              <p class="chart-note">Validado contra los eventos originales en S3.</p>
+            </div>
+            <div class="card chart-card">
+              <h3>Dónde está el costo</h3>
+              <p class="chart-sub">Proporción aproximada por componente</p>
+              <div class="chart tall" id="chart-composicion" role="img" aria-label="Más de la mitad del costo son peticiones y almacenamiento en S3; el cómputo es cerca de un tercio"></div>
+              <p class="chart-note">El costo dominante escala con las peticiones a S3, no con el cómputo.</p>
+            </div>
+          </div>
+          <div class="card chart-card" style="margin-top:20px">
+            <h3>S3 Standard frente a S3 Express One Zone</h3>
+            <p class="chart-sub">Escrituras y listados (PUT, COPY, POST, LIST), lecturas (GET) y almacenamiento por GB-mes. Índice con Standard = 100, escala logarítmica, precios públicos de AWS en us-east-1. Express suma un cargo por GB transferido que Standard no tiene.</p>
+            <div class="chart short" id="chart-s3" role="img" aria-label="En Express One Zone las escrituras cuestan cerca de un 23 por ciento y las lecturas cerca de un 8 por ciento de Standard, pero el almacenamiento cuesta casi cinco veces más"></div>
+            <p class="chart-note">Con objetos de pocos KB dominan las peticiones, así que Express gana incluso con retenciones de meses. Con objetos grandes, solo con retención corta.</p>
+          </div>
+          <h3 style="margin-top:28px">Palancas</h3>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Palanca</th><th>Resultado</th><th>Por qué</th></tr></thead>
+              <tbody>
+                <tr><td>Omitir la lectura previa a ClickHouse por proyecto</td><td><span class="status ok">Aplicada</span></td><td>La CPU por evento bajó cerca de dos tercios sin perder integridad.</td></tr>
+                <tr><td>Acotar logs internos de ClickHouse y Keeper</td><td><span class="status ok">Aplicada</span></td><td>El log de sistema escribía cerca del doble que los datos de la aplicación.</td></tr>
+                <tr><td>Retención acotada de eventos crudos</td><td><span class="status ok">Aplicada</span></td><td>Lo consultable vive en ClickHouse; el archivo crudo solo sirve para repescar.</td></tr>
+                <tr><td>Omitir el LIST de S3</td><td><span class="status diseno">Descartada</span></td><td>El emisor reenvía un span con el mismo id: sin LIST se reescribía el span raíz de cada turno.</td></tr>
+                <tr><td>S3 One Zone-IA, R2, B2, EFS</td><td><span class="status diseno">Descartadas</span></td><td>Penalizan objetos pequeños o meten internet en el camino crítico de la ingesta.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- 09 -->
+        <section class="doc-section" id="decisiones" data-domain="ia">
+          <h2><span class="num">09</span> Decisiones y contrapartidas</h2>
+          <div class="decisions">
+            <details class="decision" open>
+              <summary>Chart oficial y Terraform propio, no el módulo oficial de Terraform</summary>
+              <div class="body"><dl>
+                <div><dt>Contexto</dt><dd>El proveedor publica un módulo de Terraform para AWS. Al leer su código se comprobó que acepta una VPC existente y un ClickHouse externo.</dd></div>
+                <div><dt>Decisión</dt><dd>Chart oficial para la aplicación y ClickHouse, y tres módulos propios para todo lo demás.</dd></div>
+                <div><dt>Por qué</dt><dd>El módulo siempre crea su propio EKS solo con Fargate, sin node groups, y no puede montar volúmenes EBS.</dd></div>
+                <div><dt>Contrapartida</dt><dd>Hay que mantener los módulos y vigilar los defaults del chart. A cambio, mover la aplicación a otro Kubernetes es cambiar valores.</dd></div>
+              </dl></div>
+            </details>
+            <details class="decision">
+              <summary>Operador de ClickHouse sin cert-manager ni webhooks</summary>
+              <div class="body"><dl>
+                <div><dt>Contexto</dt><dd>cert-manager es un componente de ámbito de clúster y el clúster es compartido.</dd></div>
+                <div><dt>Decisión</dt><dd>Apagar a la vez <code>certManager</code>, <code>webhook</code> y <code>metrics.secure</code>, con la prueba de aceptación de que el ClickHouseCluster llegue a ready.</dd></div>
+                <div><dt>Por qué</dt><dd>Apagar solo cert-manager dejaba webhooks sin caBundle que la API server se saltaba en silencio.</dd></div>
+                <div><dt>Contrapartida</dt><dd>Se pierde la validación del webhook; el esquema del CRD sigue validando con sus defaults y reglas CEL.</dd></div>
+              </dl></div>
+            </details>
+            <details class="decision">
+              <summary>Ingesta interna por Service y balanceador propio para personas</summary>
+              <div class="body"><dl>
+                <div><dt>Contexto</dt><dd>El emisor y Langfuse comparten clúster, y el grupo de Ingress compartido cambia por fuera de este proyecto.</dd></div>
+                <div><dt>Decisión</dt><dd>Las aplicaciones escriben al Service interno; las personas entran por un ALB con IngressGroup y certificado propios.</dd></div>
+                <div><dt>Por qué</dt><dd>Escribir por el nombre público haría salir cada traza por NAT y volver por el ALB, con más costo y latencia.</dd></div>
+                <div><dt>Contrapartida</dt><dd>Dos caminos que operar; la sonda mide los dos para atribuir los fallos.</dd></div>
+              </dl></div>
+            </details>
+            <details class="decision">
+              <summary>Release liviana por cliente sobre backends compartidos</summary>
+              <div class="body"><dl>
+                <div><dt>Contexto</dt><dd>Algunos clientes pueden exigir un aislamiento mayor que el lógico.</dd></div>
+                <div><dt>Decisión</dt><dd>Patrón diseñado y verificado en el código de la versión instalada: release de web y worker por cliente, con base y rol propios en Aurora, base propia en ClickHouse, prefijo propio en Valkey y bucket con su llave.</dd></div>
+                <div><dt>Contrapartida</dt><dd>El nivel de aislamiento se acuerda con cada requisito normativo antes de comprometerlo.</dd></div>
+              </dl></div>
+            </details>
+          </div>
+        </section>
+
+        <!-- 10 -->
+        <section class="doc-section" id="estado" data-domain="ia">
+          <h2><span class="num">10</span> Resultado</h2>
+          <ul class="points">
+            <li><strong>Tres stacks de Terraform y Terragrunt</strong> con guardas en el plan.</li>
+            <li><strong>ClickHouse replicado</strong> con quórum y capa fría.</li>
+            <li><strong>Modo dual</strong> con vigilante, sonda y alertas.</li>
+            <li><strong>Optimizaciones medidas</strong> de CPU, logs y retención.</li>
+            <li><strong>Todos los flujos productivos</strong> conectados a la instancia propia.</li>
+          </ul>
+        </section>
+      </div>
+    </div>
+
+    <section class="section-tight">
+      <div class="container grid grid-2">
+        <a class="card project-card" href="plataforma-aws.html" style="--c:var(--d-gobierno)"><span class="tag">← Proyecto anterior</span><h3>Plataforma multicuenta en AWS</h3></a>
+        <a class="card project-card" href="finops.html" style="--c:var(--d-finops)"><span class="tag">Siguiente proyecto →</span><h3>Práctica FinOps multinube</h3></a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <span>© <span data-year></span> Ricardo Andrés Villalobos Marulanda</span>
+      <span class="footer-links"><a href="../">Inicio</a><a href="../#proyectos">Proyectos</a></span>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js" integrity="sha384-pPi0zxBAoDu6+JXW/C68UZLvBUUtU+7zonhif43rqj7pxsGyqyqzcian2Rj37Rss" crossorigin="anonymous"></script>
+  <script src="../assets/js/main.js"></script>
+  <script src="../assets/js/langfuse.js"></script>
+</body>
+</html>
